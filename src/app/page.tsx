@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import {
   AlertTriangle,
   CheckCircle,
@@ -21,6 +22,7 @@ import {
   Moon,
   CalendarDays,
   Percent,
+  Download,
 } from "lucide-react";
 
 /* ─────────────────────────── CONSTANTS ─────────────────────────── */
@@ -175,6 +177,97 @@ const CORPS: CorpsConfig[] = [
     decree: "Décrets successifs de revalorisation du minimum de traitement",
   },
 ];
+
+/* ─────────────────────────── EXPORT EXCEL ─────────────────────────── */
+
+function exportDiagnosticExcel() {
+  const wb = XLSX.utils.book_new();
+
+  CORPS.forEach((corps) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows: any[][] = [
+      ["DIAGNOSTIC - " + corps.label, "", "", "", "", "", ""],
+      ["Valeur du point officielle:", POINT_OFFICIEL, "", "Valeur utilisée par le client:", POINT_CLIENT],
+      [],
+      ["Échelon", "Votre IM", "IM officiel", "Écart IM", "Votre TBI (€)", "TBI officiel (€)", "Écart (€/mois)"],
+    ];
+
+    const maxLen = Math.max(corps.client.length, corps.officiel.length);
+    for (let i = 0; i < maxLen; i++) {
+      const c = corps.client[i];
+      const o = corps.officiel[i];
+      if (c && o) {
+        rows.push([i + 1, c.im, o.im, c.im - o.im, Math.round(c.tbi * 100) / 100, Math.round(o.tbi * 100) / 100, Math.round((c.tbi - o.tbi) * 100) / 100]);
+      } else if (o) {
+        rows.push([i + 1, "MANQUANT", o.im, "", "", Math.round(o.tbi * 100) / 100, ""]);
+      }
+    }
+
+    rows.push([], ["Explication:", corps.explanation]);
+    rows.push(["Décret de référence:", corps.decree]);
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, ws, corps.label.substring(0, 31));
+  });
+
+  CORPS.forEach((corps) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows: any[][] = [
+      ["GRILLE OFFICIELLE - " + corps.fullLabel],
+      ["Valeur du point d'indice: " + POINT_OFFICIEL + " € (au 01/07/2023)"],
+      [],
+      ["Échelon", "Indice brut (IB)", "Indice majoré (IM)", "Durée", "TBI mensuel (€)"],
+    ];
+    corps.officiel.forEach((o) => {
+      rows.push([o.ech, o.ib, o.im, o.duree, Math.round(o.tbi * 100) / 100]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 16 }];
+    XLSX.utils.book_append_sheet(wb, ws, "Officiel " + corps.label.substring(0, 21));
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const primesRows: any[][] = [
+    ["PRIMES ET INDEMNITÉS OBLIGATOIRES - FPH"],
+    [],
+    ["Prime", "Montant", "Base de calcul", "Référence légale"],
+    ["CTI (Prime Ségur)", "241,22 €/mois", "49 points × 4,92278 €", "Décret 2020-1152"],
+    ["Prime de nuit", "25% du traitement horaire", "Par heure entre 21h et 6h", "Décret 2023-1238"],
+    ["IDJF (Dimanches/Fériés)", "60 €/jour", "Forfaitaire pour 8h", "Décret 2021-1411"],
+    ["IFM (Intérim)", "10% du brut total", "Code du travail L.1251-32", "IDCC 1413"],
+    ["ICCP (Intérim)", "10% du (brut + IFM)", "Code du travail L.1251-19", "IDCC 1413"],
+  ];
+  const wsPrimes = XLSX.utils.aoa_to_sheet(primesRows);
+  wsPrimes["!cols"] = [{ wch: 24 }, { wch: 22 }, { wch: 30 }, { wch: 22 }];
+  XLSX.utils.book_append_sheet(wb, wsPrimes, "Primes FPH");
+
+  XLSX.writeFile(wb, "diagnostic_grilles_remuneration_DAIRIA.xlsx");
+}
+
+function exportGrillesExcel() {
+  const wb = XLSX.utils.book_new();
+
+  CORPS.forEach((corps) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows: any[][] = [
+      [corps.fullLabel + " - Grille officielle en vigueur"],
+      ["Source : décrets publiés au Journal Officiel"],
+      ["Valeur du point d'indice : " + POINT_OFFICIEL + " € (arrêté du 13/07/2023)"],
+      ["Décret d'échelonnement : " + corps.decree],
+      [],
+      ["Échelon", "Indice brut (IB)", "Indice majoré (IM)", "Durée dans l'échelon", "Traitement brut mensuel (€)"],
+    ];
+    corps.officiel.forEach((o) => {
+      rows.push([o.ech, o.ib, o.im, o.duree, Math.round(o.tbi * 100) / 100]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 10 }, { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 26 }];
+    XLSX.utils.book_append_sheet(wb, ws, corps.label.substring(0, 31));
+  });
+
+  XLSX.writeFile(wb, "grilles_officielles_FPH_2026_DAIRIA.xlsx");
+}
 
 /* ─────────────────────────── NAV ─────────────────────────── */
 
@@ -605,8 +698,18 @@ export default function Page() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle subtitle="Comparaison échelon par échelon">
-            Diagnostic d&eacute;taill&eacute; par corps
+            Diagnostic détaillé par corps
           </SectionTitle>
+
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={exportDiagnosticExcel}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Exporter le diagnostic en Excel
+            </button>
+          </div>
 
           {/* Tabs */}
           <div className="flex gap-2 mb-8 flex-wrap">
@@ -702,8 +805,8 @@ export default function Page() {
             />
             <RiskCard
               icon={Euro}
-              title="Risque commercial"
-              description="Les établissements hospitaliers clients peuvent contester vos factures si les bases de calcul de la rémunération sont erronées. Cela peut entraîner des renégociations tarifaires, des litiges contractuels et une perte de confiance de vos donneurs d’ordre."
+              title="Risque de sous-facturation"
+              description="En appliquant des indices inférieurs aux grilles officielles, vous sous-facturez vos prestations aux établissements hospitaliers. Concrètement, vous payez vos intérimaires moins que ce que la réglementation impose — et vous facturez vos clients sur cette base trop basse. C’est un double manque à gagner : vous perdez de la marge, et en cas de régularisation, vous devrez assumer les rappels de salaire sans pouvoir les refacturer rétroactivement à l’hôpital."
             />
           </div>
         </div>
@@ -716,12 +819,22 @@ export default function Page() {
             Les grilles officielles complètes
           </SectionTitle>
 
-          <p className="text-navy-light/70 mb-8 leading-relaxed">
+          <p className="text-navy-light/70 mb-4 leading-relaxed">
             Ci-dessous les grilles indiciaires officielles en vigueur pour les
-            trois corps concern&eacute;s. Le traitement brut indiciaire (TBI) est
-            calcul&eacute; sur la base de la valeur du point d&apos;indice :{" "}
+            trois corps concernés. Le traitement brut indiciaire (TBI) est
+            calculé sur la base de la valeur du point d&apos;indice :{" "}
             <strong>{fmt(POINT_OFFICIEL)} €</strong>.
           </p>
+
+          <div className="flex justify-end mb-6">
+            <button
+              onClick={exportGrillesExcel}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Télécharger les grilles en Excel
+            </button>
+          </div>
 
           <div className="space-y-4">
             {CORPS.map((corps) => (
@@ -984,14 +1097,14 @@ export default function Page() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="mailto:contact@dairia-avocats.fr"
+              href="mailto:s.coly@dairia-avocats.com"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-primary to-orange-light text-white font-semibold px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               <Mail className="w-4 h-4" />
               Nous contacter
             </a>
             <a
-              href="tel:+33100000000"
+              href="tel:+33672422486"
               className="inline-flex items-center gap-2 border border-white/30 text-white font-semibold px-8 py-3.5 rounded-full hover:bg-white/10 transition-all"
             >
               <Phone className="w-4 h-4" />
