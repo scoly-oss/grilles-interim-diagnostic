@@ -31,7 +31,7 @@ const POINT_CLIENT = 4.92;
 const fmt = (n: number) =>
   n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fmtEuro = (n: number) => fmt(n) + " \u20ac";
+const fmtEuro = (n: number) => fmt(n) + " €";
 
 /* ─────────────────────────── DATA ─────────────────────────── */
 
@@ -146,33 +146,33 @@ const CORPS: CorpsConfig[] = [
   {
     id: "ide",
     label: "IDE",
-    fullLabel: "Infirmier en soins g\u00e9n\u00e9raux - Grade 1",
+    fullLabel: "Infirmier en soins généraux - Grade 1",
     officiel: IDE_OFFICIEL,
     client: IDE_CLIENT,
     explanation:
-      "Vos indices correspondent aux anciennes grilles d\u2019avant le reclassement S\u00e9gur (d\u00e9cret n\u00b02021-1262 du 29/09/2021). Les indices ont \u00e9t\u00e9 revaloris\u00e9s de +5 points \u00e0 chaque \u00e9chelon.",
-    decree: "D\u00e9cret n\u00b02021-1262 du 29 septembre 2021",
+      "Vos indices correspondent aux anciennes grilles d’avant le reclassement Ségur (décret n°2021-1262 du 29/09/2021). Les indices ont été revalorisés de +5 points à chaque échelon.",
+    decree: "Décret n°2021-1262 du 29 septembre 2021",
   },
   {
     id: "as",
     label: "Aide-soignant",
-    fullLabel: "Aide-soignant \u2013 Classe normale",
+    fullLabel: "Aide-soignant – Classe normale",
     officiel: AS_OFFICIEL,
     client: AS_CLIENT,
     explanation:
-      "Vos indices correspondent aux anciennes grilles de cat\u00e9gorie C. Les aides-soignants ont \u00e9t\u00e9 reclass\u00e9s en cat\u00e9gorie B par le d\u00e9cret n\u00b02021-1260. Les \u00e9carts vont de \u221218 \u00e0 \u221229 points d\u2019indice major\u00e9, soit jusqu\u2019\u00e0 \u2212144 \u20ac/mois.",
-    decree: "D\u00e9cret n\u00b02021-1260 du 29 septembre 2021",
+      "Vos indices correspondent aux anciennes grilles de catégorie C. Les aides-soignants ont été reclassés en catégorie B par le décret n°2021-1260. Les écarts vont de −18 à −29 points d’indice majoré, soit jusqu’à −144 €/mois.",
+    decree: "Décret n°2021-1260 du 29 septembre 2021",
   },
   {
     id: "ashq",
     label: "ASHQ",
     fullLabel:
-      "Agent des services hospitaliers qualifi\u00e9 \u2013 Classe normale",
+      "Agent des services hospitaliers qualifié – Classe normale",
     officiel: ASHQ_OFFICIEL,
     client: ASHQ_CLIENT,
     explanation:
-      "Vos indices sont obsol\u00e8tes. La grille a \u00e9t\u00e9 revaloris\u00e9e \u00e0 plusieurs reprises. Vous utilisez un IM de 352 sur les 7 premiers \u00e9chelons alors que les indices officiels vont de 366 \u00e0 372.",
-    decree: "D\u00e9crets successifs de revalorisation du minimum de traitement",
+      "Vos indices sont obsolètes. La grille a été revalorisée à plusieurs reprises. Vous utilisez un IM de 352 sur les 7 premiers échelons alors que les indices officiels vont de 366 à 372.",
+    decree: "Décrets successifs de revalorisation du minimum de traitement",
   },
 ];
 
@@ -295,7 +295,7 @@ function ComparisonTable({
           )}
         </td>
         <td className="px-3 py-2.5 text-center text-sm font-medium">
-          {off?.im ?? "\u2013"}
+          {off?.im ?? "–"}
         </td>
         <td className="px-3 py-2.5 text-center text-sm">
           {isMissing ? (
@@ -313,30 +313,30 @@ function ComparisonTable({
               </span>
             )
           ) : (
-            "\u2013"
+            "–"
           )}
         </td>
         <td className="px-3 py-2.5 text-center text-sm hidden sm:table-cell">
-          {tbiCli !== null ? fmtEuro(tbiCli) : "\u2013"}
+          {tbiCli !== null ? fmtEuro(tbiCli) : "–"}
         </td>
         <td className="px-3 py-2.5 text-center text-sm font-medium hidden sm:table-cell">
-          {tbiOff !== null ? fmtEuro(tbiOff) : "\u2013"}
+          {tbiOff !== null ? fmtEuro(tbiOff) : "–"}
         </td>
         <td className="px-3 py-2.5 text-center text-sm hidden sm:table-cell">
           {isMissing ? (
             <span className="text-danger font-semibold text-xs">
-              \u00c9chelon manquant
+              Échelon manquant
             </span>
           ) : ecartEuro !== null ? (
             ecartEuro === 0 ? (
-              <span className="text-success font-medium">0 \u20ac</span>
+              <span className="text-success font-medium">0 €</span>
             ) : (
               <span className="text-danger font-semibold">
                 +{fmtEuro(ecartEuro)}
               </span>
             )
           ) : (
-            "\u2013"
+            "–"
           )}
         </td>
       </tr>
@@ -348,14 +348,14 @@ function ComparisonTable({
       <table className="w-full text-navy">
         <thead>
           <tr className="bg-navy text-white text-xs uppercase tracking-wider">
-            <th className="px-3 py-3 rounded-tl-lg">\u00c9ch.</th>
+            <th className="px-3 py-3 rounded-tl-lg">Éch.</th>
             <th className="px-3 py-3">Vos IM</th>
             <th className="px-3 py-3">IM officiels</th>
-            <th className="px-3 py-3">\u00c9cart IM</th>
+            <th className="px-3 py-3">Écart IM</th>
             <th className="px-3 py-3 hidden sm:table-cell">Votre TBI</th>
             <th className="px-3 py-3 hidden sm:table-cell">TBI officiel</th>
             <th className="px-3 py-3 rounded-tr-lg hidden sm:table-cell">
-              \u00c9cart \u20ac/mois
+              Écart €/mois
             </th>
           </tr>
         </thead>
@@ -373,10 +373,10 @@ function OfficialGrid({ data, title }: { data: Echelon[]; title: string }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-navy/5 text-navy text-xs uppercase tracking-wider">
-              <th className="px-3 py-2">\u00c9ch.</th>
+              <th className="px-3 py-2">Éch.</th>
               <th className="px-3 py-2">IB</th>
               <th className="px-3 py-2">IM</th>
-              <th className="px-3 py-2 hidden sm:table-cell">Dur\u00e9e</th>
+              <th className="px-3 py-2 hidden sm:table-cell">Durée</th>
               <th className="px-3 py-2">TBI mensuel</th>
             </tr>
           </thead>
@@ -546,7 +546,7 @@ export default function Page() {
       {/* ── SECTION 2: LE CONSTAT ── */}
       <section id="constat" className="scroll-mt-20 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle subtitle="Des \u00e9carts significatifs identifi\u00e9s">
+          <SectionTitle subtitle="Des écarts significatifs identifiés">
             Le constat
           </SectionTitle>
 
@@ -577,20 +577,20 @@ export default function Page() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <StatCard
-              value={`-${Math.round(maxEcart)} \u20ac/mois`}
-              label="\u00c9cart maximum constat\u00e9 (AS)"
+              value={`-${Math.round(maxEcart)} €/mois`}
+              label="Écart maximum constaté (AS)"
               icon={TrendingDown}
               color="danger"
             />
             <StatCard
               value="3 corps"
-              label="concern\u00e9s : IDE, AS, ASHQ"
+              label="concernés : IDE, AS, ASHQ"
               icon={AlertTriangle}
               color="warning"
             />
             <StatCard
-              value="Obsol\u00e8tes"
-              label="Grilles pr\u00e9-S\u00e9gur 2021"
+              value="Obsolètes"
+              label="Grilles pré-Ségur 2021"
               icon={Clock}
               color="orange"
             />
@@ -598,13 +598,13 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── SECTION 3: DIAGNOSTIC D\u00c9TAILL\u00c9 ── */}
+      {/* ── SECTION 3: DIAGNOSTIC DÉTAILLÉ ── */}
       <section
         id="diagnostic"
         className="scroll-mt-20 py-16 sm:py-20 bg-white"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle subtitle="Comparaison \u00e9chelon par \u00e9chelon">
+          <SectionTitle subtitle="Comparaison échelon par échelon">
             Diagnostic d&eacute;taill&eacute; par corps
           </SectionTitle>
 
@@ -670,10 +670,10 @@ export default function Page() {
                 <Info className="w-5 h-5 text-navy flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-navy-light leading-relaxed">
                   <strong>Valeur du point d&apos;indice :</strong> Vous utilisez{" "}
-                  {fmt(POINT_CLIENT)} \u20ac. La valeur officielle est de{" "}
-                  <strong>{fmt(POINT_OFFICIEL)} \u20ac</strong> (depuis le 1er
+                  {fmt(POINT_CLIENT)} €. La valeur officielle est de{" "}
+                  <strong>{fmt(POINT_OFFICIEL)} €</strong> (depuis le 1er
                   juillet 2023). Cet &eacute;cart de{" "}
-                  {fmt(POINT_OFFICIEL - POINT_CLIENT)} \u20ac par point
+                  {fmt(POINT_OFFICIEL - POINT_CLIENT)} € par point
                   s&apos;ajoute aux erreurs d&apos;indice.
                 </p>
               </div>
@@ -685,42 +685,42 @@ export default function Page() {
       {/* ── SECTION 4: LES RISQUES ── */}
       <section id="risques" className="scroll-mt-20 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle subtitle="\u00c9valuation des cons\u00e9quences juridiques et financi\u00e8res">
+          <SectionTitle subtitle="Évaluation des conséquences juridiques et financières">
             Les risques encourus
           </SectionTitle>
 
           <div className="grid gap-4 sm:gap-6">
             <RiskCard
               icon={Scale}
-              title="Risque prud\u2019homal"
-              description="Les int\u00e9rimaires sous-pay\u00e9s peuvent r\u00e9clamer un rappel de salaire sur 3 ans (article L.3245-1 du Code du travail). Avec des \u00e9carts pouvant atteindre 144 \u20ac/mois par agent, le montant cumul\u00e9 de rappels peut repr\u00e9senter des sommes tr\u00e8s significatives."
+              title="Risque prud’homal"
+              description="Les intérimaires sous-payés peuvent réclamer un rappel de salaire sur 3 ans (article L.3245-1 du Code du travail). Avec des écarts pouvant atteindre 144 €/mois par agent, le montant cumulé de rappels peut représenter des sommes très significatives."
             />
             <RiskCard
               icon={Building2}
               title="Risque URSSAF"
-              description="L\u2019application de mauvaises grilles indiciaires peut entra\u00eener un redressement de cotisations sociales. L\u2019URSSAF peut requalifier les bases de calcul et appliquer des majorations de retard sur les cotisations insuffisamment d\u00e9clar\u00e9es."
+              description="L’application de mauvaises grilles indiciaires peut entraîner un redressement de cotisations sociales. L’URSSAF peut requalifier les bases de calcul et appliquer des majorations de retard sur les cotisations insuffisamment déclarées."
             />
             <RiskCard
               icon={Euro}
               title="Risque commercial"
-              description="Les \u00e9tablissements hospitaliers clients peuvent contester vos factures si les bases de calcul de la r\u00e9mun\u00e9ration sont erron\u00e9es. Cela peut entra\u00eener des renégociations tarifaires, des litiges contractuels et une perte de confiance de vos donneurs d\u2019ordre."
+              description="Les établissements hospitaliers clients peuvent contester vos factures si les bases de calcul de la rémunération sont erronées. Cela peut entraîner des renégociations tarifaires, des litiges contractuels et une perte de confiance de vos donneurs d’ordre."
             />
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 5: GRILLES OFFICIELLES COMPL\u00c8TES ── */}
+      {/* ── SECTION 5: GRILLES OFFICIELLES COMPLÈTES ── */}
       <section id="grilles" className="scroll-mt-20 py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle subtitle="Grilles indiciaires en vigueur \u2013 Fonction Publique Hospitali\u00e8re">
-            Les grilles officielles compl\u00e8tes
+          <SectionTitle subtitle="Grilles indiciaires en vigueur – Fonction Publique Hospitalière">
+            Les grilles officielles complètes
           </SectionTitle>
 
           <p className="text-navy-light/70 mb-8 leading-relaxed">
             Ci-dessous les grilles indiciaires officielles en vigueur pour les
             trois corps concern&eacute;s. Le traitement brut indiciaire (TBI) est
             calcul&eacute; sur la base de la valeur du point d&apos;indice :{" "}
-            <strong>{fmt(POINT_OFFICIEL)} \u20ac</strong>.
+            <strong>{fmt(POINT_OFFICIEL)} €</strong>.
           </p>
 
           <div className="space-y-4">
@@ -764,7 +764,7 @@ export default function Page() {
       {/* ── SECTION 6: PRIMES OBLIGATOIRES FPH ── */}
       <section id="primes" className="scroll-mt-20 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle subtitle="Rappel des primes et indemnit\u00e9s applicables \u00e0 l\u2019int\u00e9rim hospitalier">
+          <SectionTitle subtitle="Rappel des primes et indemnités applicables à l’intérim hospitalier">
             Primes obligatoires FPH
           </SectionTitle>
 
@@ -777,10 +777,10 @@ export default function Page() {
                 CTI (Prime S&eacute;gur)
               </h4>
               <p className="text-2xl font-bold text-orange-primary mt-2">
-                241,22 \u20ac/mois
+                241,22 €/mois
               </p>
               <p className="text-sm text-navy-light/70 mt-1">
-                49 points &times; {fmt(POINT_OFFICIEL)} \u20ac
+                49 points &times; {fmt(POINT_OFFICIEL)} €
               </p>
             </div>
 
@@ -805,7 +805,7 @@ export default function Page() {
                 IDJF (Dimanches/F&eacute;ri&eacute;s)
               </h4>
               <p className="text-2xl font-bold text-orange-primary mt-2">
-                60 \u20ac/jour
+                60 €/jour
               </p>
               <p className="text-sm text-navy-light/70 mt-1">
                 Indemnit&eacute; forfaitaire par journ&eacute;e travaill&eacute;e
@@ -852,7 +852,7 @@ export default function Page() {
             Fonction Publique Territoriale
           </SectionTitle>
 
-          {/* Note g\u00e9n\u00e9rale */}
+          {/* Note générale */}
           <div className="bg-orange-primary/5 border border-orange-primary/20 rounded-xl p-5 mb-8">
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-orange-primary flex-shrink-0 mt-0.5" />
@@ -897,7 +897,7 @@ export default function Page() {
                   Aide-soignant territorial
                 </h4>
                 <span className="text-xs bg-danger/10 text-danger px-2 py-0.5 rounded-full font-semibold">
-                  \u00c0 v\u00e9rifier
+                  À vérifier
                 </span>
               </div>
               <p className="text-sm text-navy-light leading-relaxed">
@@ -1012,7 +1012,7 @@ export default function Page() {
                 n&deg;2021-1260 et n&deg;2021-1262 du 29/09/2021
               </p>
               <p>
-                Valeur du point d&apos;indice : {fmt(POINT_OFFICIEL)} \u20ac
+                Valeur du point d&apos;indice : {fmt(POINT_OFFICIEL)} €
                 (01/07/2023)
               </p>
               <p className="text-white/40 text-xs mt-2">
