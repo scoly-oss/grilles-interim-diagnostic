@@ -379,6 +379,7 @@ const NAV_ITEMS = [
   { href: "#constat", label: "Constat" },
   { href: "#diagnostic", label: "Diagnostic" },
   { href: "#risques", label: "Risques" },
+  { href: "#plafonds", label: "Plafonds" },
   { href: "#plan", label: "Plan d'action" },
   { href: "#grilles", label: "Grilles officielles" },
   { href: "#primes", label: "Primes FPH" },
@@ -913,6 +914,115 @@ export default function Page() {
               title="Risque de sous-facturation"
               description="En appliquant des indices inférieurs aux grilles officielles, vous sous-facturez vos prestations aux établissements hospitaliers. Concrètement, vous payez vos intérimaires moins que ce que la réglementation impose — et vous facturez vos clients sur cette base trop basse. C’est un double manque à gagner : vous perdez de la marge, et en cas de régularisation, vous devrez assumer les rappels de salaire sans pouvoir les refacturer rétroactivement à l’hôpital."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4ter: PLAFONNEMENT DE LA FACTURATION ── */}
+      <section id="plafonds" className="scroll-mt-20 py-16 sm:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionTitle subtitle="Arrêté du 5 septembre 2025 — en vigueur depuis le 10 septembre 2025">
+            Plafonnement de la facturation intérimaire
+          </SectionTitle>
+
+          <p className="text-navy-light/70 mb-8 leading-relaxed max-w-4xl">
+            Depuis le 10 septembre 2025, un arrêté encadre strictement les montants
+            que les entreprises de travail temporaire (ETT) peuvent facturer aux
+            établissements de santé et médico-sociaux pour la mise à disposition de
+            personnel soignant intérimaire. Ces plafonds horaires, exprimés en euros
+            HT par heure, constituent le montant maximum que l&apos;ETT peut facturer
+            à l&apos;établissement — toutes charges comprises.
+          </p>
+
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-navy text-white">
+                  <th className="text-left px-4 py-3 font-semibold rounded-tl-lg">Qualification</th>
+                  <th className="text-center px-4 py-3 font-semibold">Plafond métropole (/h HT)</th>
+                  <th className="text-center px-4 py-3 font-semibold rounded-tr-lg">Plafond outre-mer (/h HT)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { qual: "Médecin, odontologiste, pharmacien", metro: "2 681 €/24h (~111,71 €/h)", outremer: "3 752 €/24h" },
+                  { qual: "IDE (Infirmier diplômé d\u2019État)", metro: "54 €/h", outremer: "75 €/h" },
+                  { qual: "IBODE", metro: "73 €/h", outremer: "102 €/h" },
+                  { qual: "IADE", metro: "73 €/h", outremer: "102 €/h" },
+                  { qual: "MEM (Manip. électroradiologie)", metro: "56 €/h", outremer: "78 €/h" },
+                  { qual: "PPH (Préparateur pharmacie)", metro: "56 €/h", outremer: "78 €/h" },
+                  { qual: "Masseur-kinésithérapeute", metro: "62 €/h", outremer: "86 €/h" },
+                  { qual: "Sage-femme", metro: "78 €/h", outremer: "109 €/h" },
+                ].map((row, i) => (
+                  <tr
+                    key={i}
+                    className={`border-b border-gray-100 ${i % 2 === 0 ? "bg-gray-50/50" : "bg-white"} hover:bg-orange-primary/5 transition-colors`}
+                  >
+                    <td className="px-4 py-3 font-medium text-navy">{row.qual}</td>
+                    <td className="px-4 py-3 text-center text-navy-light">{row.metro}</td>
+                    <td className="px-4 py-3 text-center text-navy-light">{row.outremer}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Warning box */}
+          <div className="bg-orange-primary/5 border border-orange-primary/20 rounded-xl p-5 mb-6">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-orange-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-navy mb-1">Attention : plafonds tout compris</p>
+                <p className="text-navy-light/70 text-sm leading-relaxed">
+                  Ces plafonds incluent la rémunération de l&apos;intérimaire ET la marge
+                  de l&apos;entreprise de travail temporaire. Pour un IDE facturé 54 €/h HT
+                  maximum, l&apos;ETT doit couvrir : le salaire brut + charges patronales
+                  (~33,7 %) + IFM (10 %) + ICCP (10 %) + frais de gestion et marge.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Info box */}
+          <div className="bg-green-50 border border-green-200 rounded-xl p-5 mb-8">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-navy mb-1">Important : métiers non plafonnés</p>
+                <p className="text-navy-light/70 text-sm leading-relaxed">
+                  Les aides-soignants et ASHQ ne figurent pas dans la liste des
+                  professions plafonnées. La facturation pour ces métiers n&apos;est pas
+                  soumise au plafonnement.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Legal references */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <div className="flex items-start gap-3">
+              <BookOpen className="w-5 h-5 text-navy-light/50 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-navy mb-2">Références juridiques</p>
+                <ul className="text-sm text-navy-light/70 space-y-1">
+                  <li>Art. R. 6146-26 à R. 6146-28 du Code de la santé publique (établissements publics de santé)</li>
+                  <li>Art. R. 313-30-8 à R. 313-30-10 du Code de l&apos;action sociale et des familles (CASF)</li>
+                  <li>
+                    <a
+                      href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000050180498"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      Consulter l&apos;arrêté sur Légifrance
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
