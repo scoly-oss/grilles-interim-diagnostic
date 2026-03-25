@@ -379,6 +379,7 @@ const NAV_ITEMS = [
   { href: "#constat", label: "Constat" },
   { href: "#diagnostic", label: "Diagnostic" },
   { href: "#risques", label: "Risques" },
+  { href: "#plan", label: "Plan d'action" },
   { href: "#grilles", label: "Grilles officielles" },
   { href: "#primes", label: "Primes FPH" },
   { href: "#fpt", label: "FP Territoriale" },
@@ -912,6 +913,103 @@ export default function Page() {
               title="Risque de sous-facturation"
               description="En appliquant des indices inférieurs aux grilles officielles, vous sous-facturez vos prestations aux établissements hospitaliers. Concrètement, vous payez vos intérimaires moins que ce que la réglementation impose — et vous facturez vos clients sur cette base trop basse. C’est un double manque à gagner : vous perdez de la marge, et en cas de régularisation, vous devrez assumer les rappels de salaire sans pouvoir les refacturer rétroactivement à l’hôpital."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4bis: PLAN D'ACTION ── */}
+      <section id="plan" className="scroll-mt-20 py-16 sm:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionTitle subtitle="Les étapes concrètes pour vous mettre en conformité">
+            Plan d&apos;action recommandé
+          </SectionTitle>
+
+          <p className="text-navy-light/70 mb-10 leading-relaxed max-w-3xl">
+            Voici les actions à mener en priorité pour corriger vos grilles et sécuriser votre activité.
+            Chaque étape est essentielle — ne pas les réaliser vous expose aux risques détaillés ci-dessus.
+          </p>
+
+          <div className="space-y-4">
+            {[
+              {
+                step: 1,
+                urgency: "Immédiat",
+                urgencyColor: "DC2626",
+                title: "Mettre à jour vos indices majorés",
+                description: "Remplacez les anciennes grilles par les grilles officielles en vigueur (décrets Ségur 2021). Pour les IDE : passez de l'IM 390 à l'IM 395 au 1er échelon, et ainsi de suite pour tous les échelons. Pour les AS : passez de la grille catégorie C à la grille catégorie B. Pour les ASHQ : mettez à jour les 7 premiers échelons bloqués à l'IM 352.",
+                action: "Utilisez les grilles officielles fournies dans la section suivante ou exportez le fichier Excel."
+              },
+              {
+                step: 2,
+                urgency: "Immédiat",
+                urgencyColor: "DC2626",
+                title: "Ajouter le 11ème échelon manquant",
+                description: "Vos grilles s'arrêtent au 10ème échelon. Or, les 3 corps (IDE, AS, ASHQ) comportent 11 échelons. Les intérimaires en fin de carrière doivent être positionnés sur le bon échelon.",
+                action: "Ajoutez l'échelon 11 pour chaque corps avec les indices officiels."
+              },
+              {
+                step: 3,
+                urgency: "Immédiat",
+                urgencyColor: "DC2626",
+                title: "Corriger la valeur du point d'indice",
+                description: "Vous utilisez 4,92 € au lieu de 4,92278 €. Cet arrondi à lui seul génère un écart de 0,5 à 1,5 €/mois par agent. C'est un détail, mais sur l'ensemble de vos intérimaires et sur 3 ans de prescription, ça s'additionne.",
+                action: "Mettez à jour la valeur du point d'indice à 4,92278 € (arrêté du 13 juillet 2023)."
+              },
+              {
+                step: 4,
+                urgency: "Sous 30 jours",
+                urgencyColor: "E8842C",
+                title: "Recalculer vos tarifs de facturation",
+                description: "Vos facturations aux établissements hospitaliers sont basées sur vos grilles actuelles (erronées). Vous sous-facturez donc vos prestations. Recalculez vos coefficients de facturation sur la base des nouvelles grilles pour ne plus perdre de marge.",
+                action: "Appuyez-vous sur le simulateur de coût employeur pour recalculer le coût complet (traitement + primes + IFM + ICCP + charges)."
+              },
+              {
+                step: 5,
+                urgency: "Sous 30 jours",
+                urgencyColor: "E8842C",
+                title: "Vérifier les primes obligatoires",
+                description: "Assurez-vous que le complément de traitement indiciaire (CTI / Prime Ségur, 241,22 €/mois) est bien versé à chaque intérimaire éligible. Vérifiez également le calcul des primes de nuit (25%) et des indemnités de dimanches/jours fériés (60 €/jour).",
+                action: "Consultez la section Primes FPH ci-dessous pour les montants et références légales."
+              },
+              {
+                step: 6,
+                urgency: "Recommandé",
+                urgencyColor: "16A34A",
+                title: "Évaluer le risque de rappels de salaire",
+                description: "Avec des écarts pouvant atteindre 144 €/mois sur les aides-soignants, un intérimaire pourrait réclamer jusqu'à 5 184 € de rappel sur 3 ans (144 € × 36 mois). Multipliez par le nombre d'intérimaires concernés pour évaluer votre exposition financière totale.",
+                action: "Faites un audit de vos missions passées pour chiffrer le montant total d'exposition. DAIRIA Avocats peut vous accompagner dans cette démarche."
+              },
+              {
+                step: 7,
+                urgency: "Recommandé",
+                urgencyColor: "16A34A",
+                title: "Mettre en place une veille réglementaire",
+                description: "Les grilles indiciaires évoluent régulièrement (revalorisations du point d'indice, réformes statutaires, nouvelles primes). Sans veille active, vos grilles seront à nouveau obsolètes dans quelques mois.",
+                action: "DAIRIA Avocats peut mettre en place un suivi réglementaire adapté à votre activité d'intérim hospitalier."
+              },
+            ].map((item) => (
+              <div key={item.step} className="flex gap-4 sm:gap-6 items-start p-5 sm:p-6 rounded-xl border border-gray-200 hover:border-orange-primary/30 hover:shadow-md transition-all">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-orange-primary to-orange-light flex items-center justify-center text-white font-bold text-sm sm:text-base">
+                  {item.step}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                    <h3 className="font-bold text-navy text-sm sm:text-base">{item.title}</h3>
+                    <span
+                      className="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full text-white"
+                      style={{ backgroundColor: `#${item.urgencyColor}` }}
+                    >
+                      {item.urgency}
+                    </span>
+                  </div>
+                  <p className="text-navy-light/70 text-sm leading-relaxed mb-2">{item.description}</p>
+                  <div className="flex items-start gap-2 bg-orange-primary/5 rounded-lg px-3 py-2">
+                    <CheckCircle className="w-4 h-4 text-orange-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-xs sm:text-sm text-navy-light/80 font-medium">{item.action}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
