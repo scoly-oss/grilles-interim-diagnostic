@@ -182,20 +182,20 @@ const CORPS: CorpsConfig[] = [
 
 // Style presets
 const S = {
-  titleOrange: { font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
-  subtitle: { font: { italic: true, sz: 10, color: { rgb: "666666" } } },
-  headerNavy: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E2D3D" } }, border: { bottom: { style: "thin" as const, color: { rgb: "E8842C" } } }, alignment: { horizontal: "center" as const } },
-  headerGreen: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "16A34A" } }, alignment: { horizontal: "center" as const } },
-  cellOk: { font: { sz: 10 }, fill: { fgColor: { rgb: "F0FDF4" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
-  cellBad: { font: { sz: 10, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
-  cellBadBold: { font: { bold: true, sz: 10, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
-  cellMissing: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "DC2626" } }, alignment: { horizontal: "center" as const } },
-  cellNormal: { font: { sz: 10 }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
-  cellAlt: { font: { sz: 10 }, fill: { fgColor: { rgb: "F9FAFB" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
-  noteLabel: { font: { bold: true, sz: 9, color: { rgb: "E8842C" } } },
-  noteValue: { font: { sz: 9, color: { rgb: "4B5563" } } },
-  brandFooter: { font: { bold: true, sz: 8, color: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
-  totalRow: { font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
+  titleOrange: { font: { name: "Trebuchet MS", bold: true, sz: 16, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const, vertical: "center" as const } },
+  subtitle: { font: { name: "Trebuchet MS", italic: true, sz: 12, color: { rgb: "666666" } } },
+  headerNavy: { font: { name: "Trebuchet MS", bold: true, sz: 12, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E2D3D" } }, border: { bottom: { style: "thin" as const, color: { rgb: "E8842C" } } }, alignment: { horizontal: "center" as const, vertical: "center" as const } },
+  headerGreen: { font: { name: "Trebuchet MS", bold: true, sz: 12, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "16A34A" } }, alignment: { horizontal: "center" as const, vertical: "center" as const } },
+  cellOk: { font: { name: "Trebuchet MS", sz: 12 }, fill: { fgColor: { rgb: "F0FDF4" } }, alignment: { horizontal: "center" as const, vertical: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellBad: { font: { name: "Trebuchet MS", sz: 12, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const, vertical: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellBadBold: { font: { name: "Trebuchet MS", bold: true, sz: 12, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const, vertical: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellMissing: { font: { name: "Trebuchet MS", bold: true, sz: 12, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "DC2626" } }, alignment: { horizontal: "center" as const, vertical: "center" as const } },
+  cellNormal: { font: { name: "Trebuchet MS", sz: 12 }, alignment: { horizontal: "center" as const, vertical: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
+  cellAlt: { font: { name: "Trebuchet MS", sz: 12 }, fill: { fgColor: { rgb: "F9FAFB" } }, alignment: { horizontal: "center" as const, vertical: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
+  noteLabel: { font: { name: "Trebuchet MS", bold: true, sz: 11, color: { rgb: "E8842C" } } },
+  noteValue: { font: { name: "Trebuchet MS", sz: 11, color: { rgb: "4B5563" } } },
+  brandFooter: { font: { name: "Trebuchet MS", bold: true, sz: 11, color: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
+  totalRow: { font: { name: "Trebuchet MS", bold: true, sz: 13, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const, vertical: "center" as const } },
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
