@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import * as XLSX from "xlsx";
+import XLSX from "xlsx-js-style";
 import {
   AlertTriangle,
   CheckCircle,
@@ -180,66 +180,156 @@ const CORPS: CorpsConfig[] = [
 
 /* ─────────────────────────── EXPORT EXCEL ─────────────────────────── */
 
+// Style presets
+const S = {
+  titleOrange: { font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
+  subtitle: { font: { italic: true, sz: 10, color: { rgb: "666666" } } },
+  headerNavy: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E2D3D" } }, border: { bottom: { style: "thin" as const, color: { rgb: "E8842C" } } }, alignment: { horizontal: "center" as const } },
+  headerGreen: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "16A34A" } }, alignment: { horizontal: "center" as const } },
+  cellOk: { font: { sz: 10 }, fill: { fgColor: { rgb: "F0FDF4" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellBad: { font: { sz: 10, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellBadBold: { font: { bold: true, sz: 10, color: { rgb: "DC2626" } }, fill: { fgColor: { rgb: "FEF2F2" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "E5E7EB" } } } },
+  cellMissing: { font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "DC2626" } }, alignment: { horizontal: "center" as const } },
+  cellNormal: { font: { sz: 10 }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
+  cellAlt: { font: { sz: 10 }, fill: { fgColor: { rgb: "F9FAFB" } }, alignment: { horizontal: "center" as const }, border: { bottom: { style: "thin" as const, color: { rgb: "F3F4F6" } } } },
+  noteLabel: { font: { bold: true, sz: 9, color: { rgb: "E8842C" } } },
+  noteValue: { font: { sz: 9, color: { rgb: "4B5563" } } },
+  brandFooter: { font: { bold: true, sz: 8, color: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
+  totalRow: { font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "E8842C" } }, alignment: { horizontal: "center" as const } },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type R = any;
+
 function exportDiagnosticExcel() {
   const wb = XLSX.utils.book_new();
 
+  // --- Diagnostic sheets ---
   CORPS.forEach((corps) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows: any[][] = [
-      ["DIAGNOSTIC - " + corps.label, "", "", "", "", "", ""],
-      ["Valeur du point officielle:", POINT_OFFICIEL, "", "Valeur utilisée par le client:", POINT_CLIENT],
-      [],
-      ["Échelon", "Votre IM", "IM officiel", "Écart IM", "Votre TBI (€)", "TBI officiel (€)", "Écart (€/mois)"],
-    ];
+    const rows: R[][] = [];
+
+    // Title row (merged)
+    rows.push([{ v: "DIAGNOSTIC — " + corps.fullLabel, s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }]);
+    rows.push([{ v: "Analyse réalisée par DAIRIA Avocats — " + new Date().toLocaleDateString("fr-FR"), s: S.subtitle }]);
+    rows.push([{ v: "Point d'indice officiel : " + POINT_OFFICIEL + " € | Client : " + POINT_CLIENT + " €", s: S.subtitle }]);
+    rows.push([]);
+
+    // Header
+    rows.push([
+      { v: "Éch.", s: S.headerNavy },
+      { v: "Votre IM", s: S.headerNavy },
+      { v: "IM officiel", s: S.headerNavy },
+      { v: "Écart IM", s: S.headerNavy },
+      { v: "Votre TBI (€)", s: S.headerNavy },
+      { v: "TBI officiel (€)", s: S.headerNavy },
+      { v: "Écart (€/mois)", s: S.headerNavy },
+    ]);
 
     const maxLen = Math.max(corps.client.length, corps.officiel.length);
     for (let i = 0; i < maxLen; i++) {
       const c = corps.client[i];
       const o = corps.officiel[i];
       if (c && o) {
-        rows.push([i + 1, c.im, o.im, c.im - o.im, Math.round(c.tbi * 100) / 100, Math.round(o.tbi * 100) / 100, Math.round((c.tbi - o.tbi) * 100) / 100]);
+        const diffIM = c.im - o.im;
+        const diffTBI = Math.round((c.tbi - o.tbi) * 100) / 100;
+        const bad = diffIM !== 0;
+        const cs = bad ? S.cellBad : S.cellOk;
+        const csB = bad ? S.cellBadBold : S.cellOk;
+        rows.push([
+          { v: i + 1, s: S.cellNormal },
+          { v: c.im, s: cs },
+          { v: o.im, s: S.cellNormal },
+          { v: diffIM, s: csB },
+          { v: Math.round(c.tbi * 100) / 100, s: cs },
+          { v: Math.round(o.tbi * 100) / 100, s: S.cellNormal },
+          { v: diffTBI, s: csB },
+        ]);
       } else if (o) {
-        rows.push([i + 1, "MANQUANT", o.im, "", "", Math.round(o.tbi * 100) / 100, ""]);
+        rows.push([
+          { v: i + 1, s: S.cellNormal },
+          { v: "MANQUANT", s: S.cellMissing },
+          { v: o.im, s: S.cellNormal },
+          { v: "", s: S.cellNormal },
+          { v: "", s: S.cellNormal },
+          { v: Math.round(o.tbi * 100) / 100, s: S.cellNormal },
+          { v: "", s: S.cellNormal },
+        ]);
       }
     }
 
-    rows.push([], ["Explication:", corps.explanation]);
-    rows.push(["Décret de référence:", corps.decree]);
+    rows.push([]);
+    rows.push([{ v: "Explication :", s: S.noteLabel }, { v: corps.explanation, s: S.noteValue }]);
+    rows.push([{ v: "Décret :", s: S.noteLabel }, { v: corps.decree, s: S.noteValue }]);
+    rows.push([]);
+    rows.push([{ v: "DAIRIA Avocats — s.coly@dairia-avocats.com — 06 72 42 24 86", s: S.brandFooter }]);
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+    ws["!cols"] = [{ wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+    ];
     XLSX.utils.book_append_sheet(wb, ws, corps.label.substring(0, 31));
   });
 
+  // --- Grilles officielles sheets ---
   CORPS.forEach((corps) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows: any[][] = [
-      ["GRILLE OFFICIELLE - " + corps.fullLabel],
-      ["Valeur du point d'indice: " + POINT_OFFICIEL + " € (au 01/07/2023)"],
-      [],
-      ["Échelon", "Indice brut (IB)", "Indice majoré (IM)", "Durée", "TBI mensuel (€)"],
-    ];
-    corps.officiel.forEach((o) => {
-      rows.push([o.ech, o.ib, o.im, o.duree, Math.round(o.tbi * 100) / 100]);
+    const rows: R[][] = [];
+    rows.push([{ v: corps.fullLabel + " — Grille officielle", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }]);
+    rows.push([{ v: "Point d'indice : " + POINT_OFFICIEL + " € (arrêté 13/07/2023) — " + corps.decree, s: S.subtitle }]);
+    rows.push([]);
+    rows.push([
+      { v: "Éch.", s: S.headerGreen },
+      { v: "IB", s: S.headerGreen },
+      { v: "IM", s: S.headerGreen },
+      { v: "Durée", s: S.headerGreen },
+      { v: "TBI mensuel (€)", s: S.headerGreen },
+    ]);
+    corps.officiel.forEach((o, i) => {
+      const s = i % 2 === 0 ? S.cellNormal : S.cellAlt;
+      rows.push([
+        { v: o.ech, s },
+        { v: o.ib, s },
+        { v: o.im, s },
+        { v: o.duree, s },
+        { v: Math.round(o.tbi * 100) / 100, s },
+      ]);
     });
+    rows.push([]);
+    rows.push([{ v: "DAIRIA Avocats — s.coly@dairia-avocats.com", s: S.brandFooter }]);
+
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 16 }];
+    ws["!cols"] = [{ wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 20 }];
+    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
     XLSX.utils.book_append_sheet(wb, ws, "Officiel " + corps.label.substring(0, 21));
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const primesRows: any[][] = [
-    ["PRIMES ET INDEMNITÉS OBLIGATOIRES - FPH"],
-    [],
-    ["Prime", "Montant", "Base de calcul", "Référence légale"],
+  // --- Primes sheet ---
+  const primesRows: R[][] = [];
+  primesRows.push([{ v: "PRIMES ET INDEMNITÉS OBLIGATOIRES — FPH", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }]);
+  primesRows.push([]);
+  primesRows.push([
+    { v: "Prime", s: S.headerNavy },
+    { v: "Montant", s: S.headerNavy },
+    { v: "Base de calcul", s: S.headerNavy },
+    { v: "Référence légale", s: S.headerNavy },
+  ]);
+  const primesList = [
     ["CTI (Prime Ségur)", "241,22 €/mois", "49 points × 4,92278 €", "Décret 2020-1152"],
     ["Prime de nuit", "25% du traitement horaire", "Par heure entre 21h et 6h", "Décret 2023-1238"],
     ["IDJF (Dimanches/Fériés)", "60 €/jour", "Forfaitaire pour 8h", "Décret 2021-1411"],
     ["IFM (Intérim)", "10% du brut total", "Code du travail L.1251-32", "IDCC 1413"],
     ["ICCP (Intérim)", "10% du (brut + IFM)", "Code du travail L.1251-19", "IDCC 1413"],
   ];
+  primesList.forEach((p, i) => {
+    const s = i % 2 === 0 ? S.cellNormal : S.cellAlt;
+    primesRows.push(p.map(v => ({ v, s })));
+  });
+  primesRows.push([]);
+  primesRows.push([{ v: "DAIRIA Avocats — Expert en droit du travail et de la paie", s: S.brandFooter }]);
+
   const wsPrimes = XLSX.utils.aoa_to_sheet(primesRows);
-  wsPrimes["!cols"] = [{ wch: 24 }, { wch: 22 }, { wch: 30 }, { wch: 22 }];
+  wsPrimes["!cols"] = [{ wch: 26 }, { wch: 24 }, { wch: 32 }, { wch: 28 }];
+  wsPrimes["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
   XLSX.utils.book_append_sheet(wb, wsPrimes, "Primes FPH");
 
   XLSX.writeFile(wb, "diagnostic_grilles_remuneration_DAIRIA.xlsx");
@@ -249,20 +339,34 @@ function exportGrillesExcel() {
   const wb = XLSX.utils.book_new();
 
   CORPS.forEach((corps) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows: any[][] = [
-      [corps.fullLabel + " - Grille officielle en vigueur"],
-      ["Source : décrets publiés au Journal Officiel"],
-      ["Valeur du point d'indice : " + POINT_OFFICIEL + " € (arrêté du 13/07/2023)"],
-      ["Décret d'échelonnement : " + corps.decree],
-      [],
-      ["Échelon", "Indice brut (IB)", "Indice majoré (IM)", "Durée dans l'échelon", "Traitement brut mensuel (€)"],
-    ];
-    corps.officiel.forEach((o) => {
-      rows.push([o.ech, o.ib, o.im, o.duree, Math.round(o.tbi * 100) / 100]);
+    const rows: R[][] = [];
+    rows.push([{ v: corps.fullLabel, s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }, { v: "", s: S.titleOrange }]);
+    rows.push([{ v: "Source : décrets publiés au Journal Officiel — " + corps.decree, s: S.subtitle }]);
+    rows.push([{ v: "Valeur du point d'indice : " + POINT_OFFICIEL + " € (arrêté du 13/07/2023)", s: S.subtitle }]);
+    rows.push([]);
+    rows.push([
+      { v: "Échelon", s: S.headerNavy },
+      { v: "Indice brut (IB)", s: S.headerNavy },
+      { v: "Indice majoré (IM)", s: S.headerNavy },
+      { v: "Durée dans l'échelon", s: S.headerNavy },
+      { v: "Traitement brut mensuel (€)", s: S.headerNavy },
+    ]);
+    corps.officiel.forEach((o, i) => {
+      const s = i % 2 === 0 ? S.cellNormal : S.cellAlt;
+      rows.push([
+        { v: o.ech, s },
+        { v: o.ib, s },
+        { v: o.im, s },
+        { v: o.duree, s },
+        { v: Math.round(o.tbi * 100) / 100, s },
+      ]);
     });
+    rows.push([]);
+    rows.push([{ v: "DAIRIA Avocats — s.coly@dairia-avocats.com — 06 72 42 24 86", s: S.brandFooter }]);
+
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 10 }, { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 26 }];
+    ws["!cols"] = [{ wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 22 }, { wch: 28 }];
+    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
     XLSX.utils.book_append_sheet(wb, ws, corps.label.substring(0, 31));
   });
 
