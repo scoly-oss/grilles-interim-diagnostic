@@ -23,6 +23,10 @@ import {
   CalendarDays,
   Percent,
   Download,
+  User,
+  Briefcase,
+  GraduationCap,
+  Calculator,
 } from "lucide-react";
 
 /* ─────────────────────────── CONSTANTS ─────────────────────────── */
@@ -34,6 +38,16 @@ const fmt = (n: number) =>
   n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const fmtEuro = (n: number) => fmt(n) + " €";
+
+function parseDuree(duree: string): number {
+  if (duree === "Terminal") return Infinity;
+  let total = 0;
+  const anMatch = duree.match(/(\d+)\s*an/);
+  if (anMatch) total += parseInt(anMatch[1]);
+  const moisMatch = duree.match(/(\d+)\s*mois/);
+  if (moisMatch) total += parseInt(moisMatch[1]) / 12;
+  return total;
+}
 
 /* ─────────────────────────── DATA ─────────────────────────── */
 
@@ -381,6 +395,7 @@ const NAV_ITEMS = [
   { href: "#risques", label: "Risques" },
   { href: "#plafonds", label: "Plafonds" },
   { href: "#plan", label: "Plan d'action" },
+  { href: "#anciennete", label: "Ancienneté" },
   { href: "#grilles", label: "Grilles officielles" },
   { href: "#primes", label: "Primes FPH" },
   { href: "#fpt", label: "FP Territoriale" },
@@ -623,6 +638,93 @@ function RiskCard({
             {description}
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────── CALCULATEUR ANCIENNETÉ ─────────────────────────── */
+
+function AncienneteCalculateur() {
+  const [selectedCorps, setSelectedCorps] = useState("ide");
+  const [annees, setAnnees] = useState(0);
+
+  const corpsMap: Record<string, { label: string; data: Echelon[] }> = {
+    ide: { label: "IDE — Infirmier en soins généraux", data: IDE_OFFICIEL },
+    as: { label: "Aide-soignant", data: AS_OFFICIEL },
+    ashq: { label: "ASHQ", data: ASHQ_OFFICIEL },
+  };
+
+  const data = corpsMap[selectedCorps].data;
+
+  // Walk through echelons to find the right one
+  let cumul = 0;
+  let resultEchelon = data[data.length - 1]; // default to last
+  for (const ech of data) {
+    const dureeVal = parseDuree(ech.duree);
+    if (dureeVal === Infinity || annees < cumul + dureeVal) {
+      resultEchelon = ech;
+      break;
+    }
+    cumul += dureeVal;
+  }
+
+  return (
+    <div className="bg-gradient-to-br from-navy/5 to-orange-primary/5 border border-orange-primary/20 rounded-2xl p-6 sm:p-8">
+      <h3 className="text-xl font-bold text-navy mb-6 flex items-center gap-2">
+        <Calculator className="w-5 h-5 text-orange-primary" />
+        Calculateur d&apos;échelon par ancienneté
+      </h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Corps
+          </label>
+          <select
+            value={selectedCorps}
+            onChange={(e) => setSelectedCorps(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-orange-primary/50 focus:border-orange-primary bg-white"
+          >
+            {Object.entries(corpsMap).map(([key, val]) => (
+              <option key={key} value={key}>{val.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            Années d&apos;ancienneté dans le corps
+          </label>
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={annees}
+            onChange={(e) => setAnnees(Math.max(0, Math.min(40, Number(e.target.value))))}
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-orange-primary/50 focus:border-orange-primary bg-white"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-orange-primary/20 p-6 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+          <div>
+            <p className="text-sm text-navy-light/70 mb-1">Échelon calculé</p>
+            <p className="text-3xl font-bold text-navy">{resultEchelon.ech}</p>
+          </div>
+          <div>
+            <p className="text-sm text-navy-light/70 mb-1">Indice majoré (IM)</p>
+            <p className="text-3xl font-bold text-orange-primary">{resultEchelon.im}</p>
+          </div>
+          <div>
+            <p className="text-sm text-navy-light/70 mb-1">Traitement brut mensuel</p>
+            <p className="text-3xl font-bold text-navy">{fmtEuro(resultEchelon.tbi)}</p>
+          </div>
+        </div>
+        <p className="text-xs text-navy-light/60 mt-4 text-center">
+          Durée dans cet échelon : {resultEchelon.duree} — Point d&apos;indice : {fmt(POINT_OFFICIEL)} €
+        </p>
       </div>
     </div>
   );
@@ -1121,6 +1223,118 @@ export default function Page() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── SECTION: ANCIENNETÉ ET POSITIONNEMENT ── */}
+      <section id="anciennete" className="scroll-mt-20 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionTitle
+            id="anciennete-title"
+            subtitle="Comment déterminer le bon échelon pour chaque intérimaire"
+          >
+            Ancienneté et positionnement sur la grille
+          </SectionTitle>
+
+          <p className="text-navy-light/80 leading-relaxed mb-10 max-w-4xl">
+            Dans la Fonction Publique Hospitalière, le positionnement d&apos;un agent (ou d&apos;un intérimaire) sur la grille indiciaire dépend de son ancienneté dans le corps. Chaque échelon a une durée minimale de séjour avant de passer au suivant. Pour une entreprise d&apos;intérim, il est essentiel de positionner correctement l&apos;intérimaire : un mauvais échelon signifie un salaire erroné, et donc un risque de rappel ou de sous-facturation.
+          </p>
+
+          {/* Règles de reprise d'ancienneté */}
+          <h3 className="text-xl font-bold text-navy mb-6 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-orange-primary" />
+            Règles de reprise d&apos;ancienneté
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Card 1 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-orange-primary/30 transition-all">
+              <div className="w-12 h-12 rounded-full bg-orange-primary/10 flex items-center justify-center mb-4">
+                <User className="w-6 h-6 text-orange-primary" />
+              </div>
+              <h4 className="font-bold text-navy text-lg mb-2">Intérimaire avec expérience FPH</h4>
+              <p className="text-navy-light/80 text-sm leading-relaxed mb-3">
+                Si l&apos;intérimaire a déjà travaillé dans la FPH (titulaire ou contractuel), son ancienneté est reprise intégralement. Il doit être positionné à l&apos;échelon correspondant à ses années de service.
+              </p>
+              <p className="text-xs text-orange-primary font-medium">
+                Réf : Décret n°88-976 du 13 octobre 1988, art. 6 et 7
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-orange-primary/30 transition-all">
+              <div className="w-12 h-12 rounded-full bg-orange-primary/10 flex items-center justify-center mb-4">
+                <Briefcase className="w-6 h-6 text-orange-primary" />
+              </div>
+              <h4 className="font-bold text-navy text-lg mb-2">Intérimaire venant du secteur privé</h4>
+              <p className="text-navy-light/80 text-sm leading-relaxed mb-3">
+                L&apos;expérience professionnelle dans le secteur privé peut être partiellement reprise (en général aux 2/3 de la durée). Un IDE ayant 9 ans d&apos;expérience en clinique privée peut prétendre à une reprise de 6 ans, soit un positionnement au 5ème ou 6ème échelon selon le corps.
+              </p>
+              <p className="text-xs text-orange-primary font-medium">
+                Réf : Décret n°2010-1139 du 29 septembre 2010, art. 10
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-orange-primary/30 transition-all">
+              <div className="w-12 h-12 rounded-full bg-orange-primary/10 flex items-center justify-center mb-4">
+                <GraduationCap className="w-6 h-6 text-orange-primary" />
+              </div>
+              <h4 className="font-bold text-navy text-lg mb-2">Intérimaire en début de carrière</h4>
+              <p className="text-navy-light/80 text-sm leading-relaxed mb-3">
+                Sans expérience préalable, l&apos;intérimaire est positionné au 1er échelon du grade correspondant à sa qualification. Attention : même au 1er échelon, le salaire ne peut être inférieur au SMIC (1 823,03 € brut au 01/01/2026).
+              </p>
+            </div>
+          </div>
+
+          {/* Calculateur d'échelon */}
+          <AncienneteCalculateur />
+
+          {/* Tableaux récapitulatifs */}
+          <h3 className="text-xl font-bold text-navy mb-6 mt-12 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-orange-primary" />
+            Tableaux récapitulatifs par corps
+          </h3>
+
+          {CORPS.map((corps) => {
+            const rows = corps.officiel.map((e, idx) => {
+              const cumul = corps.officiel.slice(0, idx).reduce((acc, cur) => acc + parseDuree(cur.duree), 0);
+              const dureeVal = parseDuree(e.duree);
+              const cumulEnd = dureeVal === Infinity ? "Terminal" : fmt(cumul + dureeVal);
+              return { ...e, cumulStart: fmt(cumul), cumulEnd };
+            });
+            return (
+              <div key={corps.id} className="mb-8">
+                <h4 className="font-semibold text-navy mb-3">{corps.fullLabel}</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-navy/5 text-navy text-xs uppercase tracking-wider">
+                        <th className="px-3 py-2">Éch.</th>
+                        <th className="px-3 py-2">Durée dans l&apos;échelon</th>
+                        <th className="px-3 py-2">Ancienneté cumulée</th>
+                        <th className="px-3 py-2">IM</th>
+                        <th className="px-3 py-2">Traitement brut mensuel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r.ech} className="border-b border-gray-100">
+                          <td className="px-3 py-2 text-center font-semibold">{r.ech}</td>
+                          <td className="px-3 py-2 text-center text-navy-light/70">{r.duree}</td>
+                          <td className="px-3 py-2 text-center text-navy-light/70">
+                            {r.cumulEnd === "Terminal" ? `À partir de ${r.cumulStart} ans` : `${r.cumulStart} → ${r.cumulEnd} ans`}
+                          </td>
+                          <td className="px-3 py-2 text-center font-medium">{r.im}</td>
+                          <td className="px-3 py-2 text-center font-semibold text-orange-primary">{fmtEuro(r.tbi)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
